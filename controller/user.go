@@ -106,6 +106,11 @@ func Logout(c *gin.Context) {
 	})
 }
 
+
+
+
+	
+
 func Register(c *gin.Context) {
 	if !common.RegisterEnabled {
 		c.JSON(http.StatusOK, gin.H{
@@ -186,12 +191,35 @@ func Register(c *gin.Context) {
 		})
 		return
 	}
+
+	// 创建默认令牌
+	token := model.Token{
+		UserId:         cleanUser.Id,
+		Name:           "RJLAPI",
+		Key:            common.GenerateKey(),
+		CreatedTime:    common.GetTimestamp(),
+		AccessedTime:   common.GetTimestamp(),
+		ExpiredTime:    -1, // -1 表示永不过期
+		RemainQuota:    -1, // -1 表示无限额度
+		UnlimitedQuota: true,
+	}
+
+	if err := token.Insert(); err != nil {
+		// 如果创建令牌失败，可以选择回滚用户创建或者只返回警告
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "用户创建成功，但默认令牌创建失败: " + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "注册成功，并已创建默认令牌",
 	})
 	return
 }
+
 
 func GetAllUsers(c *gin.Context) {
 	p, _ := strconv.Atoi(c.Query("p"))
@@ -621,9 +649,30 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
+	// 创建默认令牌
+	token := model.Token{
+		UserId:         cleanUser.Id,
+		Name:           "RJLAPI",
+		Key:            common.GenerateKey(),
+		CreatedTime:    common.GetTimestamp(),
+		AccessedTime:   common.GetTimestamp(),
+		ExpiredTime:    -1, // -1 表示永不过期
+		RemainQuota:    -1, // -1 表示无限额度
+		UnlimitedQuota: true,
+	}
+
+	if err := token.Insert(); err != nil {
+		// 如果创建令牌失败，可以选择回滚用户创建或者只返回警告
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"message": "用户创建成功，但默认令牌创建失败: " + err.Error(),
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"message": "",
+		"message": "用户创建成功，并已生成默认令牌",
 	})
 	return
 }
@@ -791,11 +840,11 @@ type topUpRequest struct {
 	Key string `json:"key"`
 }
 
-var topUpLock = sync.Mutex{}
+var lock = sync.Mutex{}
 
 func TopUp(c *gin.Context) {
-	topUpLock.Lock()
-	defer topUpLock.Unlock()
+	lock.Lock()
+	defer lock.Unlock()
 	req := topUpRequest{}
 	err := c.ShouldBindJSON(&req)
 	if err != nil {
