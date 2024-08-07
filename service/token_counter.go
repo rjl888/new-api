@@ -82,12 +82,11 @@ func getTokenNum(tokenEncoder *tiktoken.Tiktoken, text string) int {
 }
 
 func getImageToken(imageUrl *dto.MessageImageUrl, model string, stream bool) (int, error) {
-	baseTokens := 85
 	if model == "glm-4v" {
 		return 1047, nil
 	}
 	if imageUrl.Detail == "low" {
-		return baseTokens, nil
+		return 85, nil
 	}
 	// TODO: 非流模式下不计算图片token数量
 	if !constant.GetMediaTokenNotStream && !stream {
@@ -101,12 +100,6 @@ func getImageToken(imageUrl *dto.MessageImageUrl, model string, stream bool) (in
 	if imageUrl.Detail == "auto" || imageUrl.Detail == "" {
 		imageUrl.Detail = "high"
 	}
-
-	tileTokens := 170
-	if strings.HasPrefix(model, "gpt-4o-mini") {
-		tileTokens = 5667
-		baseTokens = 2833
-	}
 	var config image.Config
 	var err error
 	var format string
@@ -117,20 +110,15 @@ func getImageToken(imageUrl *dto.MessageImageUrl, model string, stream bool) (in
 		config, format, _, err = DecodeBase64ImageData(imageUrl.Url)
 	}
 	if err != nil {
+		if err == ErrDecodeFailed {
+			return MaxTokenCount, nil
+		}
 		return 0, err
 	}
 
 	if config.Width == 0 || config.Height == 0 {
 		return 0, errors.New(fmt.Sprintf("fail to decode image config: %s", imageUrl.Url))
 	}
-	//// TODO: 适配官方auto计费
-	//if config.Width < 512 && config.Height < 512 {
-	//	if imageUrl.Detail == "auto" || imageUrl.Detail == "" {
-	//		// 如果图片尺寸小于512，强制使用low
-	//		imageUrl.Detail = "low"
-	//		return 85, nil
-	//	}
-	//}
 
 	shortSide := config.Width
 	otherSide := config.Height
@@ -153,7 +141,7 @@ func getImageToken(imageUrl *dto.MessageImageUrl, model string, stream bool) (in
 	// 计算图片的token数量(边的长度除以512，向上取整)
 	tiles := (shortSide + 511) / 512 * ((otherSide + 511) / 512)
 	log.Printf("tiles: %d", tiles)
-	return tiles*tileTokens + baseTokens, nil
+	return tiles*170 + 85, nil
 }
 
 func CountTokenChatRequest(request dto.GeneralOpenAIRequest, model string) (int, error) {
