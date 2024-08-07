@@ -8,27 +8,19 @@ import '../index.css';
 
 import fireworks from 'react-fireworks';
 
-import { IconHelpCircle, IconKey, IconUser } from '@douyinfe/semi-icons';
+import { IconHelpCircle, IconKey, IconUser, IconComment } from '@douyinfe/semi-icons';
 import { Avatar, Dropdown, Layout, Nav, Switch } from '@douyinfe/semi-ui';
 import { stringToColor } from '../helpers/render';
 
 // HeaderBar Buttons
 let headerButtons = [
   {
-    text: '关于',
-    itemKey: 'about',
-    to: '/about',
-    icon: <IconHelpCircle />,
+    text: '对话',
+    itemKey: 'tokensTable2',
+    to: '/tokens-table-2',
+    icon: <IconComment />,
   },
 ];
-
-if (localStorage.getItem('chat_link')) {
-  headerButtons.splice(1, 0, {
-    name: '聊天',
-    to: '/chat',
-    icon: 'comments',
-  });
-}
 
 const HeaderBar = () => {
   const [userState, userDispatch] = useContext(UserContext);
@@ -84,12 +76,12 @@ const HeaderBar = () => {
         <div style={{ width: '100%' }}>
           <Nav
             mode={'horizontal'}
-            // bodyStyle={{ height: 100 }}
+          // bodyStyle={{ height: 100 }}
             renderWrapper={({ itemElement, isSubNav, isInSubNav, props }) => {
               const routerMap = {
-                about: '/about',
                 login: '/login',
                 register: '/register',
+                tokensTable2: '/tokens-table-2',
               };
               return (
                 <Link
@@ -120,16 +112,6 @@ const HeaderBar = () => {
                     <Nav.Item itemKey={'new-year'} text={'🏮'} />
                   </Dropdown>
                 )}
-                <Nav.Item itemKey={'about'} icon={<IconHelpCircle />} />
-                <Switch
-                  checkedText='🌞'
-                  size={'large'}
-                  checked={theme === 'dark'}
-                  uncheckedText='🌙'
-                  onChange={(checked) => {
-                    setTheme(checked);
-                  }}
-                />
                 {userState.user ? (
                   <>
                     <Dropdown
@@ -164,6 +146,14 @@ const HeaderBar = () => {
                     />
                   </>
                 )}
+                {headerButtons.map((button) => (
+                  <Nav.Item
+                    key={button.itemKey}
+                    itemKey={button.itemKey}
+                    text={button.text}
+                    icon={button.icon}
+                  />
+                ))}
               </>
             }
           ></Nav>
