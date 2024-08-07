@@ -69,8 +69,22 @@ const RegisterForm = () => {
       );
       const { success, message } = res.data;
       if (success) {
-        navigate('/login');
-        showSuccess('注册成功！');
+        // 注册成功后立即进行登录
+        const loginRes = await API.post(
+          `/api/user/login?turnstile=${turnstileToken}`,
+          { username, password }
+        );
+        const { success: loginSuccess, message: loginMessage, data } = loginRes.data;
+        if (loginSuccess) {
+          // 更新用户状态
+          localStorage.setItem('user', JSON.stringify(data));
+          showSuccess('欢迎来到RJLAPI！');
+          // 设置导航目标并重新加载页面
+          window.location.href = '/topup';
+        } else {
+          showError(loginMessage);
+          navigate('/login');
+        }
       } else {
         showError(message);
       }
