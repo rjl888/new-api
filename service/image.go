@@ -12,6 +12,14 @@ import (
 	"strings"
 )
 
+const (
+	MaxTokenCount = 1500 
+)
+
+var (
+	ErrDecodeFailed = errors.New("image decode failed")
+)
+
 func DecodeBase64ImageData(base64String string) (image.Config, string, string, error) {
 	// 去除base64数据的URL前缀（如果有）
 	if idx := strings.Index(base64String, ","); idx != -1 {
@@ -22,13 +30,16 @@ func DecodeBase64ImageData(base64String string) (image.Config, string, string, e
 	decodedData, err := base64.StdEncoding.DecodeString(base64String)
 	if err != nil {
 		fmt.Println("Error: Failed to decode base64 string")
-		return image.Config{}, "", "", err
+		return image.Config{}, "", "", ErrDecodeFailed
 	}
 
 	// 创建一个bytes.Buffer用于存储解码后的数据
 	reader := bytes.NewReader(decodedData)
 	config, format, err := getImageConfig(reader)
-	return config, format, base64String, err
+	if err != nil {
+		return image.Config{}, "", "", ErrDecodeFailed
+	}
+	return config, format, base64String, nil
 }
 
 // GetImageFromUrl 获取图片的类型和base64编码的数据
@@ -55,13 +66,13 @@ func DecodeUrlImageData(imageUrl string) (image.Config, string, error) {
 	response, err := DoImageRequest(imageUrl)
 	if err != nil {
 		common.SysLog(fmt.Sprintf("fail to get image from url: %s", err.Error()))
-		return image.Config{}, "", err
+		return image.Config{}, "", ErrDecodeFailed
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != 200 {
 		err = errors.New(fmt.Sprintf("fail to get image from url: %s", response.Status))
-		return image.Config{}, "", err
+		return image.Config{}, "", ErrDecodeFailed
 	}
 
 	var readData []byte
@@ -84,7 +95,7 @@ func DecodeUrlImageData(imageUrl string) (image.Config, string, error) {
 		}
 	}
 
-	return image.Config{}, "", err // 返回最后一个错误
+	return image.Config{}, "", ErrDecodeFailed // 返回最后一个错误
 }
 
 func getImageConfig(reader io.Reader) (image.Config, string, error) {
