@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../context/User';
-import { API, getLogo, showError, showInfo, showSuccess, updateAPI } from '../helpers';
+import { API, getLogo, showError, showInfo, showSuccess } from '../helpers';
 import { onGitHubOAuthClicked } from './utils';
 import Turnstile from 'react-turnstile';
 import {
@@ -101,7 +101,6 @@ const LoginForm = () => {
       if (success) {
         userDispatch({ type: 'login', payload: data });
         setUserData(data);
-        updateAPI()
         showSuccess('登录成功！');
         if (username === 'root' && password === '123456') {
           Modal.error({
@@ -110,7 +109,7 @@ const LoginForm = () => {
             centered: true,
           });
         }
-        navigate('/token');
+        navigate('/topup');
       } else {
         showError(message);
       }
@@ -169,8 +168,8 @@ const LoginForm = () => {
                 <Form>
                   <Form.Input
                     field={'username'}
-                    label={'用户名'}
-                    placeholder='用户名'
+                    label={'用户名/邮箱'}
+                    placeholder='用户名/邮箱'
                     name='username'
                     onChange={(value) => handleChange('username', value)}
                   />
