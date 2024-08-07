@@ -26,6 +26,7 @@ import {
   IconPriceTag,
   IconSetting,
   IconUser,
+  IconMore,
 } from '@douyinfe/semi-icons';
 import { Layout, Nav } from '@douyinfe/semi-ui';
 import { setStatusData } from '../helpers/data.js';
@@ -59,6 +60,7 @@ const SiderBar = () => {
     detail: '/detail',
     pricing: '/pricing',
     task: '/task',
+    tokensTable2: '/tokens-table-2', // 新增路径
   };
 
   const headerButtons = useMemo(
@@ -76,21 +78,7 @@ const SiderBar = () => {
         icon: <IconLayers />,
         className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle',
       },
-      {
-        text: '聊天',
-        itemKey: 'chat',
-        to: '/chat',
-        icon: <IconComment />,
-        className: localStorage.getItem('chat_link')
-          ? 'semi-navigation-item-normal'
-          : 'tableHiddle',
-      },
-      {
-        text: '令牌',
-        itemKey: 'token',
-        to: '/token',
-        icon: <IconKey />,
-      },
+     
       {
         text: '兑换码',
         itemKey: 'redemption',
@@ -99,16 +87,16 @@ const SiderBar = () => {
         className: isAdmin() ? 'semi-navigation-item-normal' : 'tableHiddle',
       },
       {
+            text: '对话', // 新增导航项
+            itemKey: 'tokensTable2',
+            to: '/tokens-table-2',
+            icon: <IconComment />,
+          },
+      {
         text: '钱包',
         itemKey: 'topup',
         to: '/topup',
         icon: <IconCreditCard />,
-      },
-      {
-        text: '模型价格',
-        itemKey: 'pricing',
-        to: '/pricing',
-        icon: <IconPriceTag />,
       },
       {
         text: '用户管理',
@@ -123,48 +111,70 @@ const SiderBar = () => {
         to: '/log',
         icon: <IconHistogram />,
       },
+      
       {
-        text: '数据看板',
-        itemKey: 'detail',
-        to: '/detail',
-        icon: <IconCalendarClock />,
-        className:
-          localStorage.getItem('enable_data_export') === 'true'
-            ? 'semi-navigation-item-normal'
-            : 'tableHiddle',
+        text: '更多',
+        itemKey: 'more',
+        icon: <IconMore />,
+        items: [
+           {
+        text: '令牌',
+        itemKey: 'token',
+        to: '/token',
+        icon: <IconKey />,
+        
       },
-      {
-        text: '绘图',
-        itemKey: 'midjourney',
-        to: '/midjourney',
-        icon: <IconImage />,
-        className:
-          localStorage.getItem('enable_drawing') === 'true'
-            ? 'semi-navigation-item-normal'
-            : 'tableHiddle',
+             {
+        text: 'API文档',
+        itemKey: 'about',
+        to: '/about',
+        icon: <IconKey />,
       },
-      {
-        text: '异步任务',
-        itemKey: 'task',
-        to: '/task',
-        icon: <IconChecklistStroked />,
-        className:
-            localStorage.getItem('enable_task') === 'true'
+          {
+            text: '模型价格',
+            itemKey: 'pricing',
+            to: '/pricing',
+            icon: <IconPriceTag />,
+          },
+          {
+            text: '数据看板',
+            itemKey: 'detail',
+            to: '/detail',
+            icon: <IconCalendarClock />,
+            className:
+              localStorage.getItem('enable_data_export') === 'true'
                 ? 'semi-navigation-item-normal'
                 : 'tableHiddle',
+          },
+          {
+            text: '绘图',
+            itemKey: 'midjourney',
+            to: '/midjourney',
+            icon: <IconImage />,
+            className:
+              localStorage.getItem('enable_drawing') === 'true'
+                ? 'semi-navigation-item-normal'
+                : 'tableHiddle',
+          },
+          {
+            text: '异步任务',
+            itemKey: 'task',
+            to: '/task',
+            icon: <IconChecklistStroked />,
+            className:
+              localStorage.getItem('enable_task') === 'true'
+                ? 'semi-navigation-item-normal'
+                : 'tableHiddle',
+          },
+          {
+            text: '设置',
+            itemKey: 'setting',
+            to: '/setting',
+            icon: <IconSetting />,
+          },
+          
+        ],
       },
-      {
-        text: '设置',
-        itemKey: 'setting',
-        to: '/setting',
-        icon: <IconSetting />,
-      },
-      // {
-      //     text: '关于',
-      //     itemKey: 'about',
-      //     to: '/about',
-      //     icon: <IconAt/>
-      // }
     ],
     [
       localStorage.getItem('enable_data_export'),
