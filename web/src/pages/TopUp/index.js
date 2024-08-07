@@ -25,7 +25,7 @@ import { Link } from 'react-router-dom';
 const TopUp = () => {
   const [redemptionCode, setRedemptionCode] = useState('');
   const [topUpCode, setTopUpCode] = useState('');
-  const [topUpCount, setTopUpCount] = useState(0);
+  const [topUpCount, setTopUpCount] = useState(10); // 默认设置为10
   const [minTopupCount, setMinTopUpCount] = useState(1);
   const [amount, setAmount] = useState(0.0);
   const [minTopUp, setMinTopUp] = useState(1);
@@ -214,7 +214,7 @@ const TopUp = () => {
     <div>
       <Layout>
         <Layout.Header>
-          <h3>我的钱包</h3>
+          <h3>支付宝充值到账有延迟请等待一会在日志中查看充值记录！</h3>
         </Layout.Header>
         <Layout.Content>
           <Modal
@@ -238,48 +238,15 @@ const TopUp = () => {
                 余额 {renderQuota(userQuota)}
               </Title>
               <div style={{ marginTop: 20 }}>
-                <Divider>兑换余额</Divider>
-                <Form>
-                  <Form.Input
-                    field={'redemptionCode'}
-                    label={'兑换码'}
-                    placeholder='兑换码'
-                    name='redemptionCode'
-                    value={redemptionCode}
-                    onChange={(value) => {
-                      setRedemptionCode(value);
-                    }}
-                  />
-                  <Space>
-                    {topUpLink ? (
-                      <Button
-                        type={'primary'}
-                        theme={'solid'}
-                        onClick={openTopUpLink}
-                      >
-                        获取兑换码
-                      </Button>
-                    ) : null}
-                    <Button
-                      type={'warning'}
-                      theme={'solid'}
-                      onClick={topUp}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? '兑换中...' : '兑换'}
-                    </Button>
-                  </Space>
-                </Form>
-              </div>
-              <div style={{ marginTop: 20 }}>
-                <Divider>在线充值</Divider>
+                <Divider>在线充值（推荐使用）</Divider>
                 <Form>
                   <Form.Input
                     disabled={!enableOnlineTopUp}
                     field={'redemptionCount'}
                     label={'实付金额：' + renderAmount()}
+                    
                     placeholder={
-                      '充值数量，最低 ' + renderQuotaWithAmount(minTopUp)
+                      '输入充值数量，最低 ' + renderQuotaWithAmount(minTopUp)
                     }
                     name='redemptionCount'
                     type={'number'}
@@ -313,6 +280,40 @@ const TopUp = () => {
                       }}
                     >
                       微信
+                    </Button>
+                  </Space>
+                </Form>
+              </div>
+              <div style={{ marginTop: 20 }}>
+                <Divider>兑换余额（较繁琐）</Divider>
+                <Form>
+                  <Form.Input
+                    field={'redemptionCode'}
+                    label={'兑换码'}
+                    placeholder='粘贴或输入兑换码'
+                    name='redemptionCode'
+                    value={redemptionCode}
+                    onChange={(value) => {
+                      setRedemptionCode(value);
+                    }}
+                  />
+                  <Space>
+                    {topUpLink ? (
+                      <Button
+                        type={'primary'}
+                        theme={'solid'}
+                        onClick={openTopUpLink}
+                      >
+                        获取兑换码
+                      </Button>
+                    ) : null}
+                    <Button
+                      type={'warning'}
+                      theme={'solid'}
+                      onClick={topUp}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? '兑换中...' : '兑换'}
                     </Button>
                   </Space>
                 </Form>
